@@ -33,9 +33,9 @@ class MathProblemClassifier:
     def classify(self, question):
         self.model.eval()
         token_res = self.tokenizer(question,
-                                padding="max_length",
-                                max_length=128,
-                                truncation=True)
+                                   padding="max_length",
+                                   max_length=128,
+                                   truncation=True)
 
         input_ids = torch.tensor([token_res['input_ids']])
         mask = torch.tensor([token_res['attention_mask']])
