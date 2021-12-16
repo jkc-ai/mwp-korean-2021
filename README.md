@@ -3,7 +3,6 @@
 
 ## 1. Installation
    
-    ```
     # conda 환경 설치
     conda create -n "mwp-korean" python=3.8.3   
     
@@ -15,7 +14,6 @@
     
     # 실행에 필요한 패키지 설치
     pip install -r requirements.txt
-    ```
     
 ## 2. Classifier
    
