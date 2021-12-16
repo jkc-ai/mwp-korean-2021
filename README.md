@@ -1,7 +1,7 @@
 # mwp-korean
 한국어 수학문제 풀이 공개 저장소입니다.
 
-1. Installation
+## 1. Installation
    
     ```
     # conda 환경 설치
@@ -17,7 +17,7 @@
     pip install -r requirements.txt
     ```
     
-2. Classifier
+## 2. Classifier
    
    * [한글 서술 수학 문제 데이터셋 저장소](https://github.com/jkc-ai/mwp-korean-data)에 공개된 수학 문제 데이터를 분류하는 NLP 분류 모델입니다. 모델의 Encoder는 [KoELECTRA](https://github.com/monologg/KoELECTRA)를 이용하였습니다. 사용법은 다음과 같습니다.
 
@@ -31,7 +31,7 @@
 
 
 
-3. 참고자료
+## 3. 참고자료
 
     [1] KoELECTRA GitHub. https://github.com/monologg/KoELECTRA.
 
