@@ -3,9 +3,7 @@ import random
 import argparse
 
 import numpy as np
-
 import torch
-
 from transformers import AutoTokenizer
 from transformers import ElectraForSequenceClassification
 
@@ -13,6 +11,7 @@ from utils_classifier import *
 
 QType = QType8
 MODEL_NAME = "monologg/koelectra-base-v3-discriminator"
+
 
 class MathProblemClassifier():
     def __init__(self, phase='test'):
@@ -48,6 +47,7 @@ class MathProblemClassifier():
     def __call__(self, question):
         return self.classify(question)
 
+
 def classifier_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default = 55,
@@ -55,6 +55,7 @@ def classifier_args():
     parser.add_argument('--phase', type = str, default = 'test', choices = ['train', 'test'],
                         help = 'phase for model. train|test')
     return parser.parse_args()
+
 
 if __name__=="__main__":
     args = classifier_args()
