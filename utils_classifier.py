@@ -31,7 +31,7 @@ class QType8(Enum):
     FindingNumber1 = 3
     FindingNumber2 = 4
     FindingNumber3 = 5
-    Comparision = 6
+    Comparison = 6
     Geometry = 7
 
 class QuestionDataset(Dataset):
