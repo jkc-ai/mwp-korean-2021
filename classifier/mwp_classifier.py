@@ -57,7 +57,7 @@ def classifier_args():
     return parser.parse_args()
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     args = classifier_args()
 
     random.seed(args.seed)
