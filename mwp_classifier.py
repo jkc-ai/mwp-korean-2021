@@ -17,14 +17,6 @@ from utils_classifier import *
 QType = QType8
 MODEL_NAME = "monologg/koelectra-base-v3-discriminator"
 
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-    print('There are %d GPU(s) available.' % torch.cuda.device_count())
-    print('We will use the GPU:', torch.cuda.get_device_name(0))
-else:
-    device = torch.device("cpu")
-    print('No GPU available, using the CPU instead.')
-
 class ElectraClassifier():
     def __init__(self, phase='test'):
         self.phase = phase
@@ -37,7 +29,7 @@ class ElectraClassifier():
             self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels = self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         
-        self.model = self.model.to(device)
+        self.model = self.model
     
     def train(self):
         pass
@@ -45,8 +37,8 @@ class ElectraClassifier():
     def classify(self, question):
         self.model.eval()
         token_res = self.tokenizer(question, padding="max_length", max_length=128, truncation=True)
-        input_ids = torch.tensor([token_res['input_ids']]).to(device)
-        mask = torch.tensor([token_res['attention_mask']]).to(device)
+        input_ids = torch.tensor([token_res['input_ids']])
+        mask = torch.tensor([token_res['attention_mask']])
         with torch.no_grad():
             outputs = self.model(input_ids, token_type_ids=None, attention_mask=mask).logits
         q_type_id = np.argmax(outputs.to('cpu').detach().numpy()[0])
@@ -119,20 +111,23 @@ if __name__=="__main__":
             "둘레가 24cm인 직사각형이 있습니다. 이 직사각형의 가로 길이가 세로 길이의 2배일 때 가로는 몇 cm입니까?"]
     
     a_set = [0,0,0,0,0,
-             4,0,0,0,0,
-             1,1,1,1,1,
-             2,1,2,0,0,
-             3,3,3,3,3,
-             0,0,0,0,0,
-             4,4,4,4,4,
-             0,0,0,0,0]
+            1,1,1,1,1,
+            2,2,2,2,2,
+            3,3,3,3,3,
+            4,4,4,4,4,
+            5,5,5,5,5,
+            6,6,6,6,6,
+            7,7,7,7,7]
 
     class_to_num = {QType.Arithmetic: 0,
-                    QType.Combination: 1,
-                    QType.FindingNumber1: 2,
-                    QType.FindingNumber2: 3,
-                    QType.Comparison: 4}
-
+                    QType.Ordering: 1,
+                    QType.Combination: 2,
+                    QType.FindingNumber1: 3,
+                    QType.FindingNumber2: 4,
+                    QType.FindingNumber3: 5,
+                    QType.Comparison: 6,
+                    QType.Geometry: 7}
+    
     correct = 0
     for i, (q, a) in enumerate(zip(q_set, a_set)):
         print(f"{i+1}번 문제: {q}")
