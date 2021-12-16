@@ -3,9 +3,7 @@ import random
 import argparse
 
 import numpy as np
-
 import torch
-
 from transformers import AutoTokenizer
 from transformers import ElectraForSequenceClassification
 
@@ -14,29 +12,30 @@ from utils_classifier import *
 QType = QType8
 MODEL_NAME = "monologg/koelectra-base-v3-discriminator"
 
-class MathProblemClassifier():
+
+class MathProblemClassifier:
     def __init__(self, phase='test'):
         self.phase = phase
         self.num_labels = len(QType)
-        
+
         if phase == 'train':
             self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         else:
-            self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels = self.num_labels)
+            self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        
+
         self.model = self.model
-    
+
     def train(self):
         pass
 
     def classify(self, question):
         self.model.eval()
         token_res = self.tokenizer(question,
-                                padding="max_length",
-                                max_length=128,
-                                truncation=True)
+                                   padding="max_length",
+                                   max_length=128,
+                                   truncation=True)
 
         input_ids = torch.tensor([token_res['input_ids']])
         mask = torch.tensor([token_res['attention_mask']])
@@ -48,15 +47,17 @@ class MathProblemClassifier():
     def __call__(self, question):
         return self.classify(question)
 
+
 def classifier_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int, default = 55,
-                        help = 'seed for reproducing result')
-    parser.add_argument('--phase', type = str, default = 'test', choices = ['train', 'test'],
-                        help = 'phase for model. train|test')
+    parser.add_argument('--seed', type=int, default=55,
+                        help='seed for reproducing result')
+    parser.add_argument('--phase', type=str, default='test', choices=['train', 'test'],
+                        help='phase for model. train|test')
     return parser.parse_args()
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     args = classifier_args()
 
     random.seed(args.seed)
@@ -68,7 +69,7 @@ if __name__=="__main__":
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.deterministic = True
 
-    classifier = MathProblemClassifier(phase = args.phase)
+    classifier = MathProblemClassifier(phase=args.phase)
     if args.phase == 'train':
         classifier.train()
 
@@ -112,15 +113,15 @@ if __name__=="__main__":
             "길이가 20㎝인 철사로 직사각형을 만들었더니 철사가 남지도 모자라지도 않았습니다. 직사각형의 가로 길이가 4cm일 때, 세로 길이는 몇 cm입니까?",
             "한 변의 길이가 10cm인 정사각형과 둘레가 같은 정팔각형이 있습니다. 이 정팔각형의 한 변의 길이는 몇 cm입니까?",
             "둘레가 24cm인 직사각형이 있습니다. 이 직사각형의 가로 길이가 세로 길이의 2배일 때 가로는 몇 cm입니까?"]
-    
-    a_set = [0,0,0,0,0,
-            1,1,1,1,1,
-            2,2,2,2,2,
-            3,3,3,3,3,
-            4,4,4,4,4,
-            5,5,5,5,5,
-            6,6,6,6,6,
-            7,7,7,7,7]
+
+    a_set = [0, 0, 0, 0, 0,
+             1, 1, 1, 1, 1,
+             2, 2, 2, 2, 2,
+             3, 3, 3, 3, 3,
+             4, 4, 4, 4, 4,
+             5, 5, 5, 5, 5,
+             6, 6, 6, 6, 6,
+             7, 7, 7, 7, 7]
 
     class_to_num = {QType.Arithmetic: 0,
                     QType.Ordering: 1,
@@ -130,7 +131,7 @@ if __name__=="__main__":
                     QType.FindingNumber3: 5,
                     QType.Comparison: 6,
                     QType.Geometry: 7}
-    
+
     correct = 0
     for i, (q, a) in enumerate(zip(q_set, a_set)):
         print(f"{i+1}번 문제: {q}")
@@ -138,7 +139,7 @@ if __name__=="__main__":
         print(f"추론/정답 카테고리: {p}/{a}\n")
         if p == a:
             correct += 1
-            
+
     print(f"문제 수: {len(q_set)}")
     print(f"맞은 문제 수: {correct}")
     print(f"틀린 문제 수: {len(q_set) - correct}")
