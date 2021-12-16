@@ -26,8 +26,6 @@
    * 위 코드 실행 시, 약 40개 샘플 문제에 대한 모델의 추정 카테고리, 정답 카테고리 및 정답률을 확인하실 수 있습니다.
    * 훈련 코드 및 pre-trained weight는 제공하지 않습니다.
 
-
-
 ## 3. 참고자료
 [1] KoELECTRA GitHub. https://github.com/monologg/KoELECTRA.
 
