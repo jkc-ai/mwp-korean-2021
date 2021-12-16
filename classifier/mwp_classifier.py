@@ -69,7 +69,7 @@ if __name__ == "__main__":
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.deterministic = True
 
-    classifier = MathProblemClassifier(phase = args.phase)
+    classifier = MathProblemClassifier(phase=args.phase)
     if args.phase == 'train':
         classifier.train()
 
