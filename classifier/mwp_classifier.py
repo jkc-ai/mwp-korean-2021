@@ -17,16 +17,16 @@ class MathProblemClassifier:
     def __init__(self, phase='test'):
         self.phase = phase
         self.num_labels = len(QType)
-        
+
         if phase == 'train':
             self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         else:
             self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        
+
         self.model = self.model
-    
+
     def train(self):
         pass
 
