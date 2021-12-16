@@ -22,7 +22,7 @@ class MathProblemClassifier:
             self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         else:
-            self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels = self.num_labels)
+            self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         
         self.model = self.model
