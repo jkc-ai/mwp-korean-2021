@@ -52,7 +52,7 @@ def classifier_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default = 55,
                         help = 'seed for reproducing result')
-    parser.add_argument('--phase', type = str, default = 'test', choices = ['train', 'test']
+    parser.add_argument('--phase', type = str, default = 'test', choices = ['train', 'test'],
                         help = 'phase for model. train|test')
     return parser.parse_args()
 
