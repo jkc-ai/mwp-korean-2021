@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import datetime
 
 import numpy as np
@@ -8,7 +9,6 @@ import pandas as pd
 from enum import Enum
 
 import torch
-import json
 
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import WeightedRandomSampler
