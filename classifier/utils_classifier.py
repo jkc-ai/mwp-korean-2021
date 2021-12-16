@@ -8,6 +8,7 @@ import pandas as pd
 
 from enum import Enum
 
+
 class QType8(Enum):
     Arithmetic = 0
     Ordering = 1
