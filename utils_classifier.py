@@ -8,6 +8,7 @@ import pandas as pd
 from enum import Enum
 
 import torch
+import json
 
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import WeightedRandomSampler
@@ -32,7 +33,6 @@ class QType8(Enum):
     FindingNumber3 = 5
     Comparision = 6
     Geometry = 7
-
 
 class QuestionDataset(Dataset):
     def __init__(self, tokenizer, is_train):
