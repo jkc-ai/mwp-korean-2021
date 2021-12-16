@@ -1,9 +1,6 @@
 import os
-import sys
-import time
 import random
 import argparse
-import datetime
 
 import numpy as np
 
@@ -17,7 +14,7 @@ from utils_classifier import *
 QType = QType8
 MODEL_NAME = "monologg/koelectra-base-v3-discriminator"
 
-class ElectraClassifier():
+class MathProblemClassifier():
     def __init__(self, phase='test'):
         self.phase = phase
         self.num_labels = len(QType)
@@ -36,7 +33,11 @@ class ElectraClassifier():
 
     def classify(self, question):
         self.model.eval()
-        token_res = self.tokenizer(question, padding="max_length", max_length=128, truncation=True)
+        token_res = self.tokenizer(question,
+                                padding="max_length",
+                                max_length=128,
+                                truncation=True)
+
         input_ids = torch.tensor([token_res['input_ids']])
         mask = torch.tensor([token_res['attention_mask']])
         with torch.no_grad():
@@ -49,13 +50,15 @@ class ElectraClassifier():
 
 def classifier_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int, default = 42)
-    parser.add_argument('--phase', type = str, default = 'test', choices = ['train', 'test'])
+    parser.add_argument('--seed', type=int, default = 55,
+                        help = 'seed for reproducing result')
+    parser.add_argument('--phase', type = str, default = 'test', choices = ['train', 'test']
+                        help = 'phase for model. train|test')
     return parser.parse_args()
 
 if __name__=="__main__":
-
     args = classifier_args()
+
     random.seed(args.seed)
     os.environ['PYTHONHASHSEED'] = str(args.seed)
     np.random.seed(args.seed)
@@ -65,7 +68,7 @@ if __name__=="__main__":
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.deterministic = True
 
-    classifier = ElectraClassifier(phase = args.phase)
+    classifier = MathProblemClassifier(phase = args.phase)
     if args.phase == 'train':
         classifier.train()
 
@@ -135,6 +138,7 @@ if __name__=="__main__":
         print(f"추론/정답 카테고리: {p}/{a}\n")
         if p == a:
             correct += 1
+            
     print(f"문제 수: {len(q_set)}")
     print(f"맞은 문제 수: {correct}")
     print(f"틀린 문제 수: {len(q_set) - correct}")
