@@ -13,7 +13,7 @@ QType = QType8
 MODEL_NAME = "monologg/koelectra-base-v3-discriminator"
 
 
-class MathProblemClassifier():
+class MathProblemClassifier:
     def __init__(self, phase='test'):
         self.phase = phase
         self.num_labels = len(QType)
