@@ -6,21 +6,15 @@ import argparse
 import datetime
 
 import numpy as np
-import pandas as pd
+
 import torch
 
-from torch.utils.data import Dataset, DataLoader
-from torch.utils.data import WeightedRandomSampler
-
-from transformers import AdamW
 from transformers import AutoTokenizer
-from transformers import get_linear_schedule_with_warmup
 from transformers import ElectraForSequenceClassification
 
-from libagc.classification.classes import QType5
+from utils_classifier import *
 
-QType = QType5
-#TOKENIZER_PATH = os.path.join(os.path.dirname(__file__), "../../weights/classification_tokenizer")
+QType = QType8
 MODEL_NAME = "monologg/koelectra-base-v3-discriminator"
 
 if torch.cuda.is_available():
@@ -31,28 +25,19 @@ else:
     device = torch.device("cpu")
     print('No GPU available, using the CPU instead.')
 
-def flat_accuracy(preds, labels):
-    pred_flat = np.argmax(preds, axis=1).flatten()
-    labels_flat = labels.flatten()
-    return np.sum(pred_flat == labels_flat) / len(labels_flat)
-
-# 시간 표시 함수
-def format_time(elapsed):
-    # 반올림
-    elapsed_rounded = int(round((elapsed)))
-    # hh:mm:ss으로 형태 변경
-    return str(datetime.timedelta(seconds=elapsed_rounded))
-
 class ElectraClassifier():
     def __init__(self, phase='test'):
         self.phase = phase
-        self.num_labels = len(QType)-1 # Exclude Unknown Type
+        self.num_labels = len(QType)
         
         if phase == 'train':
             self.model = ElectraForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=self.num_labels)
             self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
         self.model = self.model.to(device)
+    
+    def train(self):
+        pass
 
     def classify(self, question):
         self.model.eval()
@@ -68,192 +53,11 @@ class ElectraClassifier():
     def __call__(self, question):
         return self.classify(question)
 
-    def train(self):
-        model = self.model
-        
-        # Hyper Parameters
-        lr = 5e-5
-        epochs = 20
-        batch_size = 32
-
-        # Prepre dataset
-        train_dataset = QuestionDataset(classifier.tokenizer, is_train=True)
-        test_dataset = QuestionDataset( classifier.tokenizer, is_train=False)
-        sampler = WeightedRandomSampler(train_dataset.sample_weights, len(train_dataset.sample_weights))
-        train_loader = DataLoader(
-            train_dataset, batch_size=batch_size, num_workers=1, sampler=sampler
-        )
-        test_loader = DataLoader(
-            test_dataset, batch_size=batch_size, num_workers=1, shuffle=False
-        )
-
-        optimizer = AdamW(model.parameters(),
-                          lr = lr,
-                          eps = 1e-8 )
-
-        total_steps = len(train_loader) * epochs
-        scheduler = get_linear_schedule_with_warmup(optimizer,
-                                                    num_warmup_steps = 100,
-                                                    num_training_steps = total_steps)
-
-        model.zero_grad()
-        # ========================================
-        #               Train
-        # ========================================
-        for epoch_i in range(0, epochs):
-            print("")
-            print('======== Epoch {:} / {:} ========'.format(epoch_i + 1, epochs))
-            print('Training...')
-
-            t0 = time.time()
-            total_loss = 0
-
-            model.train()
-            for step, batch in enumerate(train_loader):
-                if step % 500 == 0 and not step == 0:
-                    print('  Batch {:>5,}  of  {:>5,}.    Elapsed: {:}.'.format(step, len(train_loader), elapsed))
-
-                batch = tuple(t.to(device) for t in batch)
-                b_input_ids, b_input_mask, b_labels = batch
-
-                # Forward-pass
-                outputs = model(b_input_ids,
-                                token_type_ids=None,
-                                attention_mask=b_input_mask,
-                                labels=b_labels)
-
-                loss = outputs[0]
-                total_loss += loss.item()
-
-                # Back-propagation
-                loss.backward()
-                # Gradient clips less than or equal to 1.0
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                # Gradient updates
-                optimizer.step()
-                scheduler.step()
-                model.zero_grad()
-
-            avg_train_loss = total_loss / len(train_loader)
-
-            print("")
-            print("  Average training loss: {0:.6f}".format(avg_train_loss))
-            print("  Training epcoh took: {:}".format(format_time(time.time() - t0)))
-
-            # ========================================
-            #               Validation
-            # ========================================
-
-            print("")
-            print("Running Validation...")
-
-            t0 = time.time()
-            eval_loss, eval_accuracy = 0, 0
-            nb_eval_steps, nb_eval_examples = 0, 0
-
-            model.eval()
-            for batch in test_loader:
-                
-                batch = tuple(t.to(device) for t in batch)
-                b_input_ids, b_input_mask, b_labels = batch
-
-                # Forward-pass without using no gradient
-                with torch.no_grad():
-                    outputs = model(b_input_ids,
-                                    token_type_ids = None,
-                                    attention_mask = b_input_mask)
-
-                logits = outputs[0]
-
-                logits = logits.detach().cpu().numpy()
-                label_ids = b_labels.to('cpu').numpy()
-
-                tmp_eval_accuracy = flat_accuracy(logits, label_ids)
-                eval_accuracy += tmp_eval_accuracy
-                nb_eval_steps += 1
-
-            print("  Accuracy: {0:.6f}".format(eval_accuracy/nb_eval_steps))
-            print("  Validation took: {:}".format(format_time(time.time() - t0)))
-            model.save_pretrained(f"{WEIGHT_PATH}")
-
-        print("")
-        print("Training complete!")
-
-def get_qtype_by_column(column):
-    if column.startswith('산술') or column.startswith('도형') or column.startswith('순서정하기1') or column.startswith('수찾기3'):
-        return QType.Arithmetic
-    if column.startswith('조합하기'):
-        return QType.Combination
-    elif column.startswith('수찾기1'):
-        return QType.FindingNumber1
-    elif column.startswith('수찾기2'):
-        return QType.FindingNumber2
-    elif column.startswith('크기비교') or column.startswith('순서정하기2'):
-        return QType.Comparison
-    else:
-        return QType.Unknown
-
-class QuestionDataset(Dataset):
-    def __init__(self, tokenizer, is_train):
-        self.tokenizer = tokenizer
-
-        header=['new_cate', 'pre_cate', 'question', 'answer', 'formula1', 'formula2', 'candidate']
-        excel_path = os.path.join(DATASET_PATH, "jenti_v1/eunyoung_v4_merge.xlsx")
-        excel = pd.read_excel(excel_path, usecols=range(len(header)), names=header)
-
-        q_dict = {}
-        categories = excel['new_cate'].unique()
-        for cate in categories:
-            q_type = get_qtype_by_column(cate)
-            if q_type == QType.Unknown:
-                continue
-            q = excel[excel['new_cate'] == cate]['question']
-            q_type_id = q_type.value
-            if q_type_id in q_dict:     # 다른 category, 동일한 type 대응 (6 class)
-                q_dict[q_type_id].extend(q.to_list())
-            else:
-                q_dict[q_type_id] = q.to_list()
-          
-        train_dataset = {}
-        val_dataset = {}
-        for q_type_id in q_dict:
-            all = q_dict[q_type_id]
-        
-            random.shuffle(all)
-
-            # 10% of each category 
-            all_slice = int(len(all)*0.1)
-            # allocate 90% for training and the other 10% for test.
-            # as seed number is fixed, they don't intersect. 
-            train_dataset[q_type_id] = all[:-all_slice]
-            val_dataset[q_type_id] = all[-all_slice:]
-            
-        self.all_data = []
-        if is_train:
-            self.sample_weights = []
-            for q_type_id in train_dataset:
-                count = len(train_dataset[q_type_id])
-                for q in train_dataset[q_type_id]:
-                    self.all_data.append((q, q_type_id))
-                    self.sample_weights.append(1.0 / count)
-        else:
-            for q_type_id in val_dataset:
-                for q in val_dataset[q_type_id]:
-                    self.all_data.append((q, q_type_id))
-
-    def __len__(self):
-        return len(self.all_data)
-
-    def __getitem__(self, idx):
-        q, label = self.all_data[idx]
-        token_res = self.tokenizer(q, padding="max_length", max_length=128, truncation=True)
-        res = torch.tensor(token_res['input_ids']), torch.tensor(token_res['attention_mask']), torch.tensor(label)
-        return res
-
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--phase', type = str, default = 'test', choices = ['train', 'test'])
+    parser.add_argument('--')
     parser.add_argument('--seed', type=int, default = 42)
     args = parser.parse_args()
 
