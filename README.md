@@ -28,13 +28,8 @@
 
 
 
-
 ## 3. 참고자료
 
     [1] KoELECTRA GitHub. https://github.com/monologg/KoELECTRA.
 
-    [2] @article{clark2020electra,
-  title={Electra: Pre-training text encoders as discriminators rather than generators},
-  author={Clark, Kevin and Luong, Minh-Thang and Le, Quoc V and Manning, Christopher D},
-  journal={arXiv preprint arXiv:2003.10555},
-  year={2020}}.
+    [2] Clark, Kevin and Luong, Minh-Thang and Le, Quoc V and Manning, Christopher D. Electra: Pre-training text encoders as discriminators rather than generators. arXiv preprint arXiv:2003.10555. 2020.
