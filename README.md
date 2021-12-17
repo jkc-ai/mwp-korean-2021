@@ -30,3 +30,11 @@
 [1] KoELECTRA GitHub. https://github.com/monologg/KoELECTRA.
 
 [2] Clark, Kevin and Luong, Minh-Thang and Le, Quoc V and Manning, Christopher D. Electra: Pre-training text encoders as discriminators rather than generators. arXiv preprint arXiv:2003.10555. 2020.
+
+## 4. 지원
+이 연구개발은 2021년도 정부(과학기술정보통신부)의 재원으로 정보통신기획평가원의 지원을 받아 주관기관 한국원자력연구원/ 공동연구기관 주식회사 젠티에서 수행한 연구 성과물의 일부입니다.
+해당 연구과제에 대한 정보는 아래와 같습니다.
+- 과제번호: 2021-0-02152
+- 연구사업명: 인공지능산업원천기술개발
+- 연구과제명: 서술형 수학문제 해결 인공지능 알고리즘 개발
+
