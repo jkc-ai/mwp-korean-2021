@@ -1,4 +1,4 @@
-# mwp-korean
+# Math Word Problem - korean
 한글 서술형 수학문제 풀이 공개 저장소입니다.
 
 ## 1. Installation
