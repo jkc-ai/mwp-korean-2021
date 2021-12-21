@@ -4,7 +4,7 @@
 ## 1. Installation
    
     # conda 환경 설치
-    conda create -n "mwp-korean" python=3.8.3   
+    conda create -n "mwp-korean" python=3.8.3     
     
     # 설치한 conda 환경 실행
     conda activate mwp-korean
@@ -39,4 +39,3 @@
 [1] KoELECTRA GitHub. https://github.com/monologg/KoELECTRA.
 
 [2] Clark, Kevin and Luong, Minh-Thang and Le, Quoc V and Manning, Christopher D. Electra: Pre-training text encoders as discriminators rather than generators. arXiv preprint arXiv:2003.10555. 2020.
-
