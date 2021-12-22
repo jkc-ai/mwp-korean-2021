@@ -31,9 +31,9 @@
 
 * Sequence solver 사용법은 다음과 같습니다.
 
-        ```
-        python ./solver/sequence_solver.py
-        ```
+   ```
+   python ./solver/sequence_solver.py
+   ```     
 
 * Sequence solver가 푸는 문제의 예시는 해당 python script로 가서 확인하실 수 있습니다.
 
