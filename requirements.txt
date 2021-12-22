@@ -3,3 +3,4 @@ torchvision==0.9.1
 transformers
 tqdm
 pandas
+scipy
