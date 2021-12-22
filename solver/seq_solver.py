@@ -394,7 +394,7 @@ def seq_pred(seq_str,targets=[],eqs=''):
             else:
                 return out, code+ print_seq_eq(c,index+1,seq_type)
 
-
+## find variable by optimization...
 def solve(eq):
     eq = '(('+eq+'))**2'
     eq = eq.replace('=',')-(')
