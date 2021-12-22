@@ -418,7 +418,6 @@ def delete_str(word, chars):
 
     for char in chars:
         word = word.replace(char,'')
-        # words_new.append(word)
     return word
 
 
