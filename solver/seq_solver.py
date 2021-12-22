@@ -1,10 +1,8 @@
-import re
 import itertools
-
 import numpy as np
-
 from scipy import optimize
 from itertools import combinations, permutations, product
+import re
 
 MAX_SEQ = 200
 DEBUG = False
@@ -27,12 +25,15 @@ def make_seq(c,seq_type = 1):
 
     seq=[]
     for i in range(MAX_SEQ):
+
         if i==0:
             seq.append(c0)
         elif i==1:
             seq.append(c1)
         else:
+
             seq.append(seq[i-2]*c2+seq[i-1]*c3)
+
     return seq
 
 
@@ -47,6 +48,7 @@ def make_seq_poly(c):
         c3 = c[3]
     except:
         c3 = 0
+
 
     seq=[]
     for i in range(MAX_SEQ):
@@ -63,9 +65,12 @@ def solve_seq_pattern(seq_inp, init=[1,1,1,0]):
         seq_pred = seq_pred[0:len(seq_inp)]
         loss = 0
 
+        
         for i in range(len(seq_inp)):
+            
             if seq_inp[i]>=0:
                 loss = loss+ (seq_pred[i]-seq_inp[i])**2
+                
         return loss
 
     def cal_loss_poly(c):
@@ -73,12 +78,14 @@ def solve_seq_pattern(seq_inp, init=[1,1,1,0]):
         seq_pred = seq_pred[0:len(seq_inp)]
         loss = 0
 
+        
         for i in range(len(seq_inp)):
+            
             if seq_inp[i]>=0:
                 loss = loss+ (seq_pred[i]-seq_inp[i])**2
+                
         return loss
-    if LOCAL:
-        print('1nd try: polynomical')
+    if LOCAL: print('1nd try: polynomical')
 
     n_seq = get_n_seq(seq_inp)
     x = init
@@ -96,7 +103,7 @@ def solve_seq_pattern(seq_inp, init=[1,1,1,0]):
         print('c:',out[0])
     seq_type = 2
 
-    if loss > 1E-1: 
+    if loss > 1E-1:
         seq_type = 1
         x = init
         if len(x)>=4:
@@ -111,8 +118,8 @@ def solve_seq_pattern(seq_inp, init=[1,1,1,0]):
     if LOCAL: print("out_c:",out_c)
     if len(init)>n_seq:
         out_c.append(0)
-    if LOCAL:
-        print("out_c:",out_c)
+    if LOCAL: print("out_c:",out_c)
+
 
     return out_c, loss, seq_type
 
@@ -160,8 +167,8 @@ def find_seq(seq_inp,c,eq,seq_type=1):
 
 def find_seq_string(seq,target):
     seq_ori = seq
-    if LOCAL:
-        print("find_seq_string:",target, seq)
+    if LOCAL: print("find_seq_string:",target, seq)
+
     if seq[-1] < 0:
         seq = seq[:-1]
 
@@ -179,6 +186,7 @@ def find_seq_string(seq,target):
     code = code + "pattern_len = len(seq)\n"
     if LOCAL: print(seq)
     if str(type(target))=="<class 'int'>":
+        
         out = seq[(target-1)%pattern_len]
         
         code = code + "target=%d\n"%target
@@ -199,16 +207,16 @@ def find_seq_string(seq,target):
             value = -6
         if target == 'Z': 
             value = -7
-        print(target)
         idx = seq_ori.index(value)
         out = seq_ori[idx%pattern_len]
         code = code + "print(seq[%d%%%d])"%(idx,pattern_len)
-    if LOCAL:
-        print(code)
+        
+    if LOCAL: print(code)
     return out, code
 
 def print_seq_eq(c,target,seq_type):
     out = ''
+
     if LOCAL: print('c:', c)
     c.append(0)
     c.append(0)
@@ -224,6 +232,7 @@ def print_seq_eq(c,target,seq_type):
         else:
             n = target-1
             out = "print(int(round(%f+%f*%d+%f*%d**2+%f*%d**3)))"%(c[0],c[1],n,c[2],n,c[3],n)
+
     elif seq_type ==1:
         out = out + 'c0 = %f\n'%c[0]
         out = out + 'c1 = %f\n'%c[1]
@@ -235,7 +244,7 @@ def print_seq_eq(c,target,seq_type):
         out = out + '    if i==0: seq.append(c0)\n'
         out = out + '    elif i==1: seq.append(c1)\n'
         out = out + '    else: seq.append(seq[i-2]*c2+seq[i-1]*c3)\n'
-        
+
         if str(type(target))=="<class 'str'>":
             out = out + 'print(%s)'%target
         else:
@@ -252,19 +261,21 @@ def find_index_string(seq, w):
     if w=='Y': key = -6
     if w=='Z': key = -7
 
+
     if key==0:
         return 0
     else:
         return seq.index(key)
 
 def get_n_seq(seq):
+
     seq_new = [x for x in seq if x>=0]
     n_seq = len(seq_new)
+
     return n_seq
 
 def seq_pred(seq_str,targets=[],eqs=''):
-    if LOCAL:
-        print('initial:', targets, eqs)
+    if LOCAL: print('initial:', targets, eqs)
     seq_ori = seq_str
 
     seq_str = seq_str.replace('A', '-1')
@@ -275,63 +286,55 @@ def seq_pred(seq_str,targets=[],eqs=''):
     seq_str = seq_str.replace('Y', '-6')
     seq_str = seq_str.replace('Z', '-7')
 
-    if LOCAL:
-        print(seq_str)
+    if LOCAL: print(seq_str)
 
     seq = eval(seq_str)
     target = None
+
     if len(targets)==1:
         target = targets[0]
 
     if str(type(seq[0]))=="<class 'str'>" :
-        if LOCAL:
-            print('string')
+        if LOCAL: print('string')
         return find_seq_string(seq,len(seq)+1)
 
     n_seq = get_n_seq(seq)
-    if LOCAL:
-        print("no of seq:", n_seq)
+    if LOCAL: print("no of seq:", n_seq)
     c,loss,seq_type = solve_seq_pattern(seq, [seq[0],1,0,0,0])
-    
-    if LOCAL:
-        print('targets=', targets)
+
+    if LOCAL: print('targets=', targets)
     if str(type(target))=="<class 'str'>":
         if target.isdigit() == True:
             target = int(target)
 
     if len(targets)>1:
-        if LOCAL:
-            print('multiple target! output eq:',targets)
+        if LOCAL: print('multiple target! output eq:',targets)
         code = ""
         for idx, tar in enumerate(targets):
             if idx==0:
                 A = cal_seq(c,tar,seq_type)
-                if LOCAL:
-                    print('A=',A)
+                if LOCAL: print('A=',A)
                 if seq_type == 2:
                     code = code +"A = %f+%f*%d+%f*%d**2+%f*%d**3\n"%(c[0],c[1],tar-1,c[2],tar-1,c[3],tar-1)
                 else:
                     code = code +'A=%d\n'%A
             elif idx==1:
                 B = cal_seq(c,tar,seq_type)
-                if LOCAL:
-                    print('B=',B)
+                if LOCAL: print('B=',B)
                 if seq_type == 2:
                     code = code +"B = %f+%f*%d+%f*%d**2+%f*%d**3\n"%(c[0],c[1],tar-1,c[2],tar-1,c[3],tar-1)
                 else:
                     code = code +'B=%d\n'%B
             elif idx==2:
                 C = cal_seq(c,tar,seq_type)
-                if LOCAL:
-                    print('C=',C)
+                if LOCAL: print('C=',C)
                 if seq_type == 2:
                     code = code +"C = %f+%f*%d+%f*%d**2+%f*%d**3\n"%(c[0],c[1],tar-1,c[2],tar-1,c[3],tar-1)
                 else:
                     code = code +'C=%d\n'%C
             elif idx==3:
                 D = cal_seq(c,tar,seq_type)
-                if LOCAL:
-                    print('D=',D)
+                if LOCAL: print('D=',D)
                 if seq_type == 2:
                     code = code +"D = %f+%f*%d+%f*%d**2+%f*%d**3\n"%(c[0],c[1],tar-1,c[2],tar-1,c[3],tar-1)
                 else:
@@ -339,8 +342,7 @@ def seq_pred(seq_str,targets=[],eqs=''):
 
             elif idx==4:
                 X = cal_seq(c,tar,seq_type)
-                if LOCAL:
-                    print('X=',X)
+                if LOCAL: print('X=',X)
                 if seq_type == 2:
                     code = code +"X = %f+%f*%d+%f*%d**2+%f*%d**3\n"%(c[0],c[1],tar-1,c[2],tar-1,c[3],tar-1)
                 else:
@@ -348,51 +350,42 @@ def seq_pred(seq_str,targets=[],eqs=''):
 
             elif idx==5:
                 Y = cal_seq(c,tar,seq_type)
-                if LOCAL:
-                    print('Y=',Y)
+                if LOCAL: print('Y=',Y)
                 if seq_type == 2:
                     code = code +"Y = %f+%f*%d+%f*%d**2+%f*%d**3\n"%(c[0],c[1],tar-1,c[2],tar-1,c[3],tar-1)
                 else:
                     code = code +'Y=%d\n'%Y
             elif idx==6:
                 Z = cal_seq(c,tar,seq_type)
-                if LOCAL:
-                    print('Z=',Z)
+                if LOCAL: print('Z=',Z)
                 if seq_type == 2:
                     code = code +"Z = %f+%f*%d+%f*%d**2+%f*%d**3\n"%(c[0],c[1],tar-1,c[2],tar-1,c[3],tar-1)
                 else:
                     code = code +'Z=%d\n'%Z                        
                 
         out = eval(eqs)
-        if LOCAL:
-            print('eqs:', eqs)
-        if LOCAL:
-            print(eqs, out)
+        if LOCAL: print('eqs:', eqs)
+        if LOCAL: print(eqs, out)
         code = code + 'print(int(round(%s)))'%eqs
         return out, code
 
-    if LOCAL:
-        print('target:',target)
-    if str(type(target))=="<class 'int'>":
+    if LOCAL: print('target:',target)
+    if str(type(target))=="<class 'int'>": 
         if loss > 1:
-            if LOCAL:
-                print('solve by string pattern (int target)')
+            if LOCAL: print('solve by string pattern (int target)')
             return find_seq_string(seq,target)
         else:
-            if LOCAL:
-                print("simple seq")
-            if LOCAL:
-                print_seq(c,seq_type)
+            if LOCAL: print("simple seq")
+            if LOCAL: print_seq(c,seq_type)
             return cal_seq(c,target,seq_type), print_seq_eq(c,target,seq_type)
     else:
-        if LOCAL:
-            print("case of equation output")
+        if LOCAL: print("case of equation output")
         if loss > 1:
-            if LOCAL:
-                print('solve by string pattern(string target')
+            if LOCAL: print('solve by string pattern(string target')
             return find_seq_string(seq,eqs)
         else:
             if LOCAL: print_seq(c,seq_type)
+            
             out, code = find_seq(seq,c,eqs,seq_type)
             
             index = find_index_string(seq,eqs)
@@ -400,6 +393,7 @@ def seq_pred(seq_str,targets=[],eqs=''):
                 return out, code+ print_seq_eq(c,eqs,seq_type)
             else:
                 return out, code+ print_seq_eq(c,index+1,seq_type)
+
 
 def solve(eq):
     eq = '(('+eq+'))**2'
@@ -409,18 +403,24 @@ def solve(eq):
     def cal_loss(x):
         out = eval(eq)
         return out
+
     out = optimize.fmin(cal_loss, 0, xtol=0.00000001, ftol=0.00000001, maxiter=1500, full_output=True, disp=DEBUG)
+
     out = round(out[0][0],2)
-    if LOCAL:
-        print(out)
+    if LOCAL: print(out)
+
     return 
+
 
 korean = re.compile('[\u3131-\u3163\uac00-\ud7a3]+')
 special_char = '?.,_'
 def delete_str(word, chars):
+
     for char in chars:
         word = word.replace(char,'')
-        return word
+        # words_new.append(word)
+    return word
+
 
 def solve_seq(input):
 
@@ -431,10 +431,10 @@ def solve_seq(input):
     find_num = False
     seqs = []
 
-    if LOCAL:
-        print(words)
+    if LOCAL: print(words)
 
     for word in words:
+
         if word.isalnum() :
             if word.isdigit()==True:
                 find_num = True
@@ -452,23 +452,24 @@ def solve_seq(input):
                     seqs.append(word)
                 break
 
-    if LOCAL:
-        print("sequence list:",seqs)
+    if LOCAL: print("sequence list:",seqs)
     seq_str= ",".join(seqs)
-    if LOCAL:
-        print(seq_str)
+    if LOCAL: print(seq_str)
+
 
     words = text_nokor.split(' ')
     eqs = ''
 
     targets = find_target_no(input)
+    
     for word in words:
         word = delete_str(word, special_char)
         word = word.replace(' ','')
+
         if word!='':
             eqs = word
-    if LOCAL:
-        print("ans:", eqs)
+
+    if LOCAL: print("ans:", eqs)
 
     return seq_pred(seq_str, targets, eqs)
 
@@ -480,8 +481,7 @@ def find_target_no(inp):
         inp = inp.replace('째', '번째')
     inp = inp.replace('번째', ' 번째')
     
-    if LOCAL:
-        print(inp)
+    if LOCAL: print(inp)
         
     words = inp.split(' ')
     targets = []
@@ -499,12 +499,11 @@ def find_target_no(inp):
                 target = int(w)
             targets.append(target)
 
-    if LOCAL:
-        print(targets)
+    if LOCAL: print(targets)
     return targets
     
 
-def seq_solver(question:str, local):
+def seq_solver(question:str, local = False):
     global LOCAL
     LOCAL = local
 
@@ -517,10 +516,16 @@ def seq_solver(question:str, local):
 
 
 if __name__ == "__main__":
-# execute only if run as a script
-    q_list = ["2, 4, 8, 14, 22 에서 7번째에 올 수를 구하시오.",
+    q_list = ["주어진 숫자가 31, A, 33, 34, 35, B, 37, 38 일 경우, B-A에 해당하는 알맞은 수는 무엇일까요?",
+                "2, 4, 8, 14, 22 에서 7번째에 올 수를 구하시오.",
+                "1, 17, 33, 49, 65와 같은 규칙에서 25번째 놓일 수와 40번째 놓일 수를 각각 A와 B라 할 때, B-A를 구하시오.",
+                "주어진 숫자가 31, A, 33, 34, 35, B, 37, 38 일 경우, B-A에 해당하는 알맞은 수는 무엇일까요?",
+                "2, 4, 8, 14, 22 에서 7번째에 올 수를 구하시오.",
+                "1, 17, 33, 49, 65와 같은 규칙에서 25번째 놓일 수와 40번째 놓일 수를 각각 A와 B라 할 때, B-A를 구하시오.",
+                "주어진 숫자가 31, A, 33, 34, 35, B, 37, 38 일 경우, B에 해당하는 알맞은 수는 무엇일까요?",
                 "1,2,3,4,5,6,7,1,2,3,4,5,6,7과 같이 반복되는 수열이 있습니다. 왼쪽에서 57번째 숫자는 무엇입니까?",
-                "1, 5, 14, 30, 55, 91과 같은 규칙으로 수를 배열하고 있습니다. 9번째 수는 무엇입니까?"]
+                "1, 5, 14, 30, 55, 91과 같은 규칙으로 수를 배열하고 있습니다. 9번째 수는 무엇입니까?",
+                "자연수를 규칙에 따라 4, 7, 10, A, 16, 19로 배열하였습니다. A에 알맞은 수를 구하시오."]
     for i, q in enumerate(q_list):
-        out_dict = seq_solver(q, False)
-        print(f"{i+1:2d}번째 문제: {q}\n       {'답':3s}: {out_dict['answer']}")
+        a = seq_solver(q, False)['answer']
+        print(f"{i+1:2d} 번째 문제\n    - {'문제':2s}: {q}\n    - {'답':^3s}: {a}\n")
